@@ -1,0 +1,97 @@
+##############Grafana installation  ubuntu 24.04 steps
+
+---
+
+### **Step 1: Install Prerequisite Packages**
+Run the following command to install the required packages:
+
+sudo apt-get install -y apt-transport-https software-properties-common wget
+
+
+### **Step 2: Import the GPG Key**
+Create a directory for storing the GPG key, download it, and save it in the correct format:
+
+sudo mkdir -p /etc/apt/keyrings/
+wget -q -O - https://apt.grafana.com/gpg.key | gpg --dearmor | sudo tee /etc/apt/keyrings/grafana.gpg > /dev/null
+
+
+
+### **Step 3: Add the Grafana Repository**
+#### For Stable Releases:
+
+echo "deb [signed-by=/etc/apt/keyrings/grafana.gpg] https://apt.grafana.com stable main" | sudo tee -a /etc/apt/sources.list.d/grafana.list
+
+
+#### For Beta Releases:
+(Optional, only if you need beta releases)
+
+echo "deb [signed-by=/etc/apt/keyrings/grafana.gpg] https://apt.grafana.com beta main" | sudo tee -a /etc/apt/sources.list.d/grafana.list
+
+### **Step 4: Update Package List**
+Update the list of available packages to include Grafana:
+
+sudo apt-get update
+
+
+---
+
+### **Step 5: Install Grafana**
+#### Install the Open Source Version:
+
+sudo apt-get install grafana
+
+
+#### Install the Enterprise Version:
+
+sudo apt-get install grafana-enterprise
+
+
+### **Optional: Install Using a DEB Package or Standalone Binary**
+1. Visit the [Grafana download page](https://grafana.com/grafana/download) and select the version and edition (Enterprise or Open Source) that you need.
+2. Follow the on-screen instructions to download and install the `.deb` package or standalone binaries.
+
+
+
+### **Step 6: Start and Enable the Grafana Service**
+Start the Grafana service and enable it to run on system startup:
+
+sudo systemctl start grafana-server
+sudo systemctl enable grafana-server
+
+
+### **Uninstall Grafana (If Required)**
+To remove Grafana completely:
+1. Stop the service:
+   - Systemd:
+    
+     sudo systemctl stop grafana-server
+     ```
+   - Init.d:
+     ```bash
+     sudo service grafana-server stop
+     ```
+
+2. Uninstall Grafana:
+   - Open Source:
+     ```bash
+     sudo apt-get remove grafana
+     ```
+   - Enterprise:
+     ```bash
+     sudo apt-get remove grafana-enterprise
+     ```
+
+3. (Optional) Remove the Grafana repository:
+   ```bash
+   sudo rm -i /etc/apt/sources.list.d/grafana.list
+   ```
+
+---
+
+### **Next Steps**
+- Access Grafana via the browser by navigating to `http://<your-server-ip>:3000`.
+- Default login credentials:
+  - Username: `admin`
+  - Password: `admin` (you’ll be prompted to change it after logging in).
+
+Let me know if you need further assistance!
