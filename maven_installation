@@ -1,0 +1,45 @@
+###How to Install Maven on Ubuntu 24.04?
+
+#Step 1: Verify Your Ubuntu Distribution
+lsb_release -a
+
+
+#Step 2: Update Ubuntu’s Packages List
+sudo apt update
+
+#Step 1: Install Java Development Kit (JDK)
+sudo apt install default-jdk -y
+
+#Step 2: Confirm Java Installation
+java -version
+
+
+#Step 1: Visit the Maven Official Website
+https://maven.apache.org/download.cgi
+
+
+
+#Step 2: Download Maven Binary
+wget https://dlcdn.apache.org/maven/maven-3/3.9.7/binaries/apache-maven-3.9.7-bin.tar.gz
+
+#Step 3: Extract Maven to “/opt” Directory
+sudo tar xf apache-maven-3.9.7-bin.tar.gz -C /opt
+
+#Step 4: Setup Maven’s Environment Variables
+sudo nano /etc/profile.d/maven.sh
+
+#Inside the “maven.sh” script file, copy the below lines of code:
+export JAVA_HOME=/usr/lib/jvm/default-java 
+export M3_HOME=/opt/apache-maven-3.9.7 
+export MAVEN_HOME=/opt/apache-maven-3.9.7 
+export PATH=${M3_HOME}/bin:${PATH}
+
+
+#Step 5: Make the “/maven.sh” Executable
+sudo chmod +x /etc/profile.d/maven.sh
+
+#Step 6: Execute the “/maven.sh” to Apply Changes
+source /etc/profile.d/maven.sh
+
+#Step 7: Verify Maven Installation
+mvn -version
