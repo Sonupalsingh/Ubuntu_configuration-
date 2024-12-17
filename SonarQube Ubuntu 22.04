@@ -1,0 +1,182 @@
+### **Install SonarQube on Ubuntu  22.04**
+
+
+#### **Step 1: Update the System**
+
+sudo apt update && sudo apt upgrade -y
+
+#### **Step 2: Install Java**
+
+sudo apt install openjdk-17-jdk -y
+
+java -version
+
+#### **Step 3: Install PostgreSQL**
+
+sudo apt install curl ca-certificates
+   sudo install -d /usr/share/postgresql-common/pgdg
+   sudo curl -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc --fail https://www.postgresql.org/media/keys/ACCC4CF8.asc
+   sudo sh -c 'echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+   sudo apt update && sudo apt install postgresql-15 -y
+
+
+
+######2. Configure PostgreSQL:
+
+
+   sudo -i -u postgres
+   createuser sonar
+   createdb sonar -O sonar
+   psql
+   ALTER USER sonar WITH ENCRYPTED PASSWORD 'your_password';
+   \q
+   exit
+
+
+#### **Step 4: Install SonarQube**
+
+ wget https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-10.5.1.90531.zip
+   unzip sonarqube-10.5.1.90531.zip
+   sudo mv sonarqube-10.5.1.90531 /opt/sonarqube
+
+
+#####Create a SonarQube user and set permissions:
+
+sudo adduser --system --no-create-home --group --disabled-login sonarqube
+   sudo chown -R sonarqube:sonarqube /opt/sonarqube
+
+
+#####3. Configure SonarQube:
+sudo nano /opt/sonarqube/conf/sonar.properties
+
+
+#############Add:  properties
+
+   sonar.jdbc.username=sonar
+   sonar.jdbc.password=your_password
+   sonar.jdbc.url=jdbc:postgresql://localhost/sonar
+
+
+#### **Step 5: Create a Systemd Service**
+
+
+sudo nano /etc/systemd/system/sonarqube.service
+
+########Add: ini
+
+   [Unit]
+   Description=SonarQube service
+   After=syslog.target network.target
+
+   [Service]
+   Type=forking
+   ExecStart=/opt/sonarqube/bin/linux-x86-64/sonar.sh start
+   ExecStop=/opt/sonarqube/bin/linux-x86-64/sonar.sh stop
+   User=sonarqube
+   Group=sonarqube
+   Restart=always
+   LimitNOFILE=65536
+   LimitNPROC=4096
+
+   [Install]
+   WantedBy=multi-user.target
+
+
+
+####2. Reload and start:
+
+
+
+   sudo systemctl daemon-reload
+   sudo systemctl start sonarqube
+   sudo systemctl enable sonarqube
+
+
+
+#### **Step 6: Set File Descriptors and Virtual Memory**
+
+
+sudo nano /etc/security/limits.conf
+
+   ####Add: conf
+   sonarqube   -   nofile   65536
+   sonarqube   -   nproc    4096
+
+
+######2. Set virtual memory:
+
+   sudo sysctl -w vm.max_map_count=262144
+   sudo nano /etc/sysctl.conf
+
+ ##### Add: conf
+   vm.max_map_count=262144
+
+#### Apply: bash
+   sudo sysctl -p
+
+
+#### **Step 7: Configure Firewall**
+
+sudo ufw allow 9000/tcp
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+sudo ufw reload
+
+
+
+#### **Step 8: Configure Nginx**
+
+   sudo apt install nginx -y
+
+
+###### Create configuration:
+
+   sudo nano /etc/nginx/sites-available/sonarqube.example.com
+
+
+
+#####Add: nginx
+   server {
+       listen 80;
+       server_name sonarqube.example.com;
+       access_log /var/log/nginx/sonarqube.access.log;
+       error_log /var/log/nginx/sonarqube.error.log;
+
+       location / {
+           proxy_pass http://localhost:9000;
+           proxy_set_header Host $host;
+           proxy_set_header X-Real-IP $remote_addr;
+           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+           proxy_set_header X-Forwarded-Proto $scheme;
+       }
+   }
+
+
+
+#####3. Enable and restart:
+  
+   sudo ln -s /etc/nginx/sites-available/sonarqube.example.com /etc/nginx/sites-enabled/
+   sudo nginx -t
+   sudo systemctl restart nginx
+
+
+#### **Step 9: Configure HTTPS**
+#####1. Install Certbot:
+
+   sudo apt install certbot python3-certbot-nginx -y
+
+
+
+######2. Get SSL Certificate:
+ 
+   sudo certbot --nginx -d sonarqube.example.com
+
+
+#### **Step 10: Access SonarQube**
+
+###- Open a browser and go to:
+###  - `http://your_domain_or_ip`
+###- Login credentials:
+###  - **Username:** `admin`
+###  - **Password:** `admin`  
+###  (Change the password on the first login.)  
