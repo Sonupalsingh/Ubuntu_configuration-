@@ -37,6 +37,7 @@ sudo apt install curl ca-certificates
 
  wget https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-10.5.1.90531.zip
 apt install unzip  -y
+sudo apt install vim  -y
    unzip sonarqube-10.5.1.90531.zip
    sudo mv sonarqube-10.5.1.90531 /opt/sonarqube
 
@@ -61,7 +62,7 @@ sudo nano /opt/sonarqube/conf/sonar.properties
 #### **Step 5: Create a Systemd Service**
 
 
-sudo nano /etc/systemd/system/sonarqube.service
+sudo vim /etc/systemd/system/sonarqube.service
 
 ########Add: ini
 
@@ -97,7 +98,7 @@ sudo nano /etc/systemd/system/sonarqube.service
 #### **Step 6: Set File Descriptors and Virtual Memory**
 
 
-sudo nano /etc/security/limits.conf
+sudo vim /etc/security/limits.conf
 
    ####Add: conf
    sonarqube   -   nofile   65536
@@ -132,7 +133,7 @@ sudo ufw reload
 
 ###### Create configuration:
 
-   sudo nano /etc/nginx/sites-available/sonarqube.example.com
+   sudo vim /etc/nginx/sites-available/sonarqube.example.com
 
 
 
