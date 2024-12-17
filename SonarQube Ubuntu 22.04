@@ -49,7 +49,7 @@ sudo adduser --system --no-create-home --group --disabled-login sonarqube
 
 
 #####3. Configure SonarQube:
-sudo nano /opt/sonarqube/conf/sonar.properties
+sudo vim /opt/sonarqube/conf/sonar.properties
 
 
 #############Add:  properties
