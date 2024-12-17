@@ -36,6 +36,7 @@ sudo apt install curl ca-certificates
 #### **Step 4: Install SonarQube**
 
  wget https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-10.5.1.90531.zip
+apt install unzip  -y
    unzip sonarqube-10.5.1.90531.zip
    sudo mv sonarqube-10.5.1.90531 /opt/sonarqube
 
