@@ -8,6 +8,9 @@ secure_mariadb() {
     sudo mysql_secure_installation
 }
 
+ROOT_PASS=1234
+DB_USER=sonu
+DB_USER=sonu
 # Function to create a new MariaDB user
 create_mariadb_user() {
     # Prompt for the root password
