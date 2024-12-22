@@ -119,6 +119,11 @@ sudo systemctl start nginx
 sudo nginx -t
 
 
+
+sudo systemctl restart nginx
+sudo systemctl restart kibana
+
+
 ###  file beat command
 sudo filebeat module list
 sudo filebeat modules enable system
