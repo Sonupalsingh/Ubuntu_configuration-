@@ -24,6 +24,9 @@ deb [signed-by=/usr/share/keyrings/elastic-archive-keyring.gpg] https://artifact
 echo "deb [signed-by=/usr/share/keyrings/elastic-archive-keyring.gpg] https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-7.x.list
 
 
+
+###############################Start Here ########################################
+
 ##Update package list:
 sudo apt-get update
 ##Install OpenJDK 8:
