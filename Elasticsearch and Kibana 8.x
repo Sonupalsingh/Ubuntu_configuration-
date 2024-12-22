@@ -127,8 +127,15 @@ sudo systemctl restart kibana
 
 
 ###  file beat command
-sudo filebeat module list
-sudo filebeat modules enable system
+sudo filebeat modules list
+    sudo filebeat modules enable system
+
+
+   55  sudo filebeat modules list
+   56  sudo filebeat modules enable system
+   57  sudo filebeat modules list
+   58  sudo filebeat modules enable apache
+   59  sudo filebeat modules list
 sudo filebeat modules list  ### ab enable catagersi mai aa jayga vo 
 vim /etc/filebeat/modules.d/system.yml ###
 var.paths:["/var/log/syslog*"]
