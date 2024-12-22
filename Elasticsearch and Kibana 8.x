@@ -80,7 +80,9 @@ sudo apt install logstash
 sudo apt install filebeat
 
 sudo systemctl start elasticsearch
-sudo systemctl enable elasticsearch
+sudo systemctl enable kibana
+sudo systemctl start kibana
+sudo systemctl enable logstash
 sudo systemctl start logstash
 sudo systemctl enable logstash
 sudo systemctl start filebeat
