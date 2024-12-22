@@ -85,7 +85,9 @@ sudo systemctl enable filebeat
 
 sudo apt install apache2-utils -y
 
-sudo htpasswd -c /etc/nginx/.htpasswd kibana
+#sudo htpasswd -c /etc/nginx/.htpasswd kibana
+sudo htpasswd -c /etc/nginx/htpasswd.users kibana
+cat /etc/nginx/htpasswd.users
 
 
 
