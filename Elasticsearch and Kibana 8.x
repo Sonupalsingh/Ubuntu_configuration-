@@ -38,14 +38,15 @@ sudo apt-get -y install nginx
 
 ##Add Elasticsearch GPG key:
 ##wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
-curl -fsSL https://artifacts.elastic.co/GPG-KEY-elasticsearch | gpg --dearmor | sudo tee /usr/share/keyrings/elastic-archive-keyring.gpg
 
 ##Add Elasticsearch repository:
 ##echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-7.x.list
-sudo vim /etc/apt/sources.list.d/elastic-7.x.list
+##sudo vim /etc/apt/sources.list.d/elastic-7.x.list
 ##edit
 
-deb [signed-by=/usr/share/keyrings/elastic-archive-keyring.gpg] https://artifacts.elastic.co/packages/7.x/apt stable main
+echo "deb [signed-by=/usr/share/keyrings/elastic-archive-keyring.gpg] https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-7.x.list
+
+curl -fsSL https://artifacts.elastic.co/GPG-KEY-elasticsearch | gpg --dearmor | sudo tee /usr/share/keyrings/elastic-archive-keyring.gpg
 
 ##Update package list again:
 sudo apt update
@@ -55,22 +56,40 @@ sudo apt update
 sudo apt install elasticsearch
 
 
-vim /etc/elasticsearch/elasticsearch.yml
+#vim /etc/elasticsearch/elasticsearch.yml
 
+#cluster.name: my-application
+#node.name: node-1
+#network.host: localhost
+#http.port: 9200
+
+
+
+# Define the file path
+elasticsearch="/etc/elasticsearch/elasticsearch.yml"
+
+# Append multiple lines to the file
+sudo bash -c "cat >> $elasticsearch" <<EOL
 cluster.name: my-application
 node.name: node-1
 network.host: localhost
 http.port: 9200
+EOL
 
 
 
 ##Install Kibana:
 sudo apt install kibana
 
-vim /etc/kibana/kibana.yml
 
+# Define the file path
+kibana="/etc/kibana/kibana.yml"
+
+# Append multiple lines to the file
+sudo bash -c "cat >> \"$kibana\"" <<EOL
 server.port: 5601
 server.host: "localhost"
+EOL
 
 ##Install Kibana:
 sudo apt install logstash
@@ -97,11 +116,18 @@ cat /etc/nginx/htpasswd.users
 
 
 sudo mv /etc/nginx/sites-available/default /etc/nginx/sites-available/default-backup
-sudo vim /etc/nginx/sites-available/default
+##sudo vim /etc/nginx/sites-available/default
+
+
+# Define the file path
+default="/etc/nginx/sites-available/default"
+
+# Append multiple lines to the file
+sudo bash -c "cat >> \"$default\"" <<'EOL'
 server {
     listen 80;
 
-    #server_name <Instance Private IP>;
+    # server_name <Instance Private IP>;
     server_name localhost;
     auth_basic "Restricted Access";
     auth_basic_user_file /etc/nginx/htpasswd.users;
@@ -109,12 +135,14 @@ server {
     location / {
         proxy_pass http://localhost:5601;
         proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
+        proxy_set_header Host \$host;
+        proxy_cache_bypass \$http_upgrade;
     }
 }
+EOL
+
 
 sudo systemctl enable nginx
 sudo systemctl start nginx
