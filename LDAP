@@ -1,0 +1,62 @@
+#######LDAP 24.04 ###Ubuntu####
+
+
+###Ldap Server
+
+hostnamectl set-hostname server.example.com
+
+bash
+
+
+##Step 1: Update the System
+sudo apt update && sudo apt upgrade -y
+
+
+
+##Step 2: Install LDAP Server
+sudo apt install slapd ldap-utils -y
+
+
+###Step 3: Configure the LDAP Server
+##Run the configuration process for slapd.
+sudo dpkg-reconfigure slapd
+
+
+##Step 4: Verify LDAP Server
+sudo systemctl status slapd
+
+
+##Query the server to test:
+ldapsearch -x -LLL -H ldap:/// -b dc=example,dc=com
+
+
+
+###########Client########
+
+
+hostnamectl set-hostname client.example.com
+
+bash
+
+##Step 1: Update the System
+sudo apt update && sudo apt upgrade -y
+
+
+###Step 5: Install LDAP Client
+sudo apt install ldap-utils -y
+
+
+##Step 6: Configure the LDAP Client
+
+sudo vim /etc/ldap/ldap.conf
+
+
+##Update the file with your server information:
+BASE dc=example,dc=com
+URI ldap://<server_ip_or_hostname>/
+
+
+
+##Step 7: Test the LDAP Client
+ldapsearch -x -H ldap://<server_ip_or_hostname>/ -b dc=example,dc=com
+
