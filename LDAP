@@ -29,6 +29,77 @@ sudo systemctl status slapd
 ##Query the server to test:
 ldapsearch -x -LLL -H ldap:/// -b dc=example,dc=com
 
+##########LDAP ACTIVE Directory######
+##Step 1: Update System Packages
+sudo apt update && sudo apt upgrade -y
+
+##Step 2: Install Required Dependencies
+sudo apt install openjdk-17-jdk -y
+
+
+##Verify the Java installation:
+java -version
+
+
+##Step 3: Download Apache Directory Studio
+wget https://dlcdn.apache.org//directory/studio/2.0.0.v20210717-M17/ApacheDirectoryStudio-2.0.0.v20210717-M17-linux.gtk.x86_64.tar.gz
+
+
+##Step 4: Extract and Install
+tar -xvzf ApacheDirectoryStudio-*.tar.gz
+
+
+##Move the extracted folder to a system directory, e.g., /opt:
+sudo mv ApacheDirectoryStudio /opt/apache-directory-studio
+
+
+##Step 5: Create a Symlink for Easy Access
+sudo ln -s /opt/apache-directory-studio/ApacheDirectoryStudio /usr/local/bin/apache-directory-studio
+
+
+##Step 6: Launch Apache Directory Studio
+apache-directory-studio
+
+
+##If you encounter issues running the application, navigate to the directory and launch it directly:
+cd /opt/apache-directory-studio
+./ApacheDirectoryStudio
+
+
+##4. Run Apache Directory Studio (which failed):
+apache-directory-studio
+
+
+##5. View the error log:
+cat /opt/apache-directory-studio/configuration/1735085696846.log
+
+
+##6. Install GTK and related libraries:
+sudo apt update
+sudo apt install libwebkitgtk-3.0-0 libgtk2.0-0 libcanberra-gtk-module libcanberra-gtk3-module -y
+
+
+##Install alternative libraries for Apache Directory Studio:
+sudo apt install libwebkit2gtk-4.0-37 libgtk-3-0 libcanberra-gtk-module libcanberra-gtk3-module -y
+
+
+##8. Add universe repository and update packages:
+sudo add-apt-repository universe
+sudo apt update
+
+
+##9. Search for libwebkit2gtk packages:
+apt search libwebkit2gtk
+
+
+##10. Install the WebKitGTK library:
+sudo apt install libwebkit2gtk-4.1-0 libgtk-3-0 libcanberra-gtk-module libcanberra-gtk3-module -y
+
+
+##11. Install VNC server:
+tightvncserver
+
+
 
 
 ###########Client########
