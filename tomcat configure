@@ -40,4 +40,26 @@ sudo systemctl daemon-reload
 sudo systemctl start tomcat
 
 
+
+vim  tomcat-users.xml
+
+<role rolename="manager-gui"/>
+<role rolename="admin-gui"/>
+<user username="admin" password="admin_password" roles="manager-gui, admin-gui"/>
+
+
+##########################
+
+vim  /opt/tomcat/apache-tomcat-10.1.34/conf/context.xml
+
+<Context antiResourceLocking="false" privileged="true" >
+  <CookieProcessor className="org.apache.tomcat.util.http.Rfc6265CookieProcessor"
+                   sameSiteCookies="strict" />
+  <!-- <Valve className="org.apache.catalina.valves.RemoteAddrValve"
+  allow="127\.\d+\.\d+\.\d+|::1|0:0:0:0:0:0:0:1" />  -->
+  <Valve className="org.apache.catalina.valves.RemoteAddrValve" allow=".*"/>
+
+  <Manager sessionAttributeValueClassNameFilter="java\.lang\.(?:Boolean|Integer|Long|Number|String)|org\.apache\.catalina\.filters\.CsrfPreventionFilter\$LruCache(?:\$1)?|java\.util\.(?:Linked)?HashMap"/>
+
+
 http://ip:8080/
