@@ -8,7 +8,8 @@ lsb_release -a
 sudo apt update
 
 #Step 1: Install Java Development Kit (JDK)
-sudo apt install default-jdk -y
+#sudo apt install default-jdk -y
+sudo apt install openjdk-17-jdk
 
 #Step 2: Confirm Java Installation
 java -version
@@ -29,7 +30,11 @@ sudo tar xf apache-maven-3.9.7-bin.tar.gz -C /opt
 sudo nano /etc/profile.d/maven.sh
 
 #Inside the “maven.sh” script file, copy the below lines of code:
-export JAVA_HOME=/usr/lib/jvm/default-java 
+
+##/usr/lib/jvm/java-17-openjdk-amd64
+#put the java version
+#export JAVA_HOME=/usr/lib/jvm/default-java 
+export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 export M3_HOME=/opt/apache-maven-3.9.7 
 export MAVEN_HOME=/opt/apache-maven-3.9.7 
 export PATH=${M3_HOME}/bin:${PATH}
