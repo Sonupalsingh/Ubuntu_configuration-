@@ -1,0 +1,287 @@
+
+#####Clinet side#####
+
+apt install git -y
+git clone  https://github.com/jaiswaladi246/Boardgame.git
+sudo apt install openjdk-17-jdk  -y
+apt install maven -y
+cd Boardgame 
+mvn package
+cd target
+java -jar database_service_project-0.0.7.jar  &
+
+
+##VM-1 (Node Exporter)
+##Download Node Exporter
+wget https://github.com/prometheus/node_exporter/releases/download/v1.8.1/node_exporter-1.8.1.linux-amd64.tar.gz
+
+
+##Extract Node Exporter
+tar xvfz node_exporter-1.8.1.linux-amd64.tar.gz
+
+##Start Node Exporter
+cd node_exporter-1.8.1.linux-amd64
+./node_exporter &
+
+
+localhost:8080
+localhost:9100  ### check node_exporter
+
+
+
+######################################################################################
+
+##VM-2 (Prometheus, Alertmanager, Blackbox Exporter)
+##Download Prometheus
+wget https://github.com/prometheus/prometheus/releases/download/v2.52.0/prometheus-2.52.0.linux-amd64.tar.gz
+
+##Extract Prometheus
+tar xvfz prometheus-2.52.0.linux-amd64.tar.gz
+
+##Start Prometheus
+cd prometheus-2.52.0.linux-amd64
+./prometheus --config.file=prometheus.yml &
+
+loclhost:9090
+
+
+
+
+##Alertmanager
+##Download Alertmanager
+
+wget https://github.com/prometheus/alertmanager/releases/download/v0.27.0/alertmanager-0.27.0.linux-amd64.tar.gz
+
+##Extract Alertmanager
+tar xvfz alertmanager-0.27.0.linux-amd64.tar.gz
+
+##Start Alertmanager
+cd alertmanager-0.27.0.linux-amd64
+./alertmanager --config.file=alertmanager.yml &
+
+
+
+cd /alertmanager-0.27.0.linux-amd64/alertmanager.yml      ===mail server configuration
+#### after run this  show the rule on prometheus 
+
+### setup alert rules  vim  prometheus-2.52.0.linux-amd64/alert_rules.yml
+
+groups:
+- name: alert_rules                   # Name of the alert rules group
+  rules:
+    - alert: InstanceDown
+      expr: up == 0                   # Expression to detect instance down
+      for: 1m
+      labels:
+        severity: "critical"
+      annotations:
+        summary: "Endpoint {{ $labels.instance }} down"
+        description: "{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 1 minute."
+
+    - alert: WebsiteDown
+      expr: probe_success == 0        # Expression to detect website down  ### black box check krega 
+      for: 1m
+      labels:
+        severity: critical
+      annotations:
+        description: The website at {{ $labels.instance }} is down.
+        summary: Website down
+
+    - alert: HostOutOfMemory
+      expr: node_memory_MemAvailable / node_memory_MemTotal * 100 < 25  # Expression to detect low memory
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Host out of memory (instance {{ $labels.instance }})"
+        description: "Node memory is filling up (< 25% left)\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+    - alert: HostOutOfDiskSpace
+      expr: (node_filesystem_avail{mountpoint="/"} * 100) / node_filesystem_size{mountpoint="/"} < 50  # Expression to detect low disk space
+      for: 1s
+      labels:
+        severity: warning
+      annotations:
+        summary: "Host out of disk space (instance {{ $labels.instance }})"
+        description: "Disk is almost full (< 50% left)\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+    - alert: HostHighCpuLoad
+      expr: (sum by (instance) (irate(node_cpu{job="node_exporter_metrics",mode="idle"}[5m]))) > 80  # Expression to detect high CPU load
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Host high CPU load (instance {{ $labels.instance }})"
+        description: "CPU load is > 80%\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+    - alert: ServiceUnavailable
+      expr: up{job="node_exporter"} == 0  # Expression to detect service unavailability
+      for: 2m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Service Unavailable (instance {{ $labels.instance }})"
+        description: "The service {{ $labels.job }} is not available\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+    - alert: HighMemoryUsage
+      expr: (node_memory_Active / node_memory_MemTotal) * 100 > 90  # Expression to detect high memory usage
+      for: 10m
+      labels:
+        severity: critical
+      annotations:
+        summary: "High Memory Usage (instance {{ $labels.instance }})"
+        description: "Memory usage is > 90%\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+    - alert: FileSystemFull
+      expr: (node_filesystem_avail / node_filesystem_size) * 100 < 10  # Expression to detect file system almost full
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: "File System Almost Full (instance {{ $labels.instance }})"
+        description: "File system has < 10% free space\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+
+####check yaml indentation checker
+
+
+
+### define the alert file to prometheus/
+rule_files:
+   - "alert_rules.yml"
+  # - "second_rules.yml"
+
+
+### restart the alertmanager 
+
+localhost:9093
+
+###show status on alertmanaeger
+
+##restart the prometheus   to show the alert on prometeus
+pgrep  prometheus 
+##show the alert on promethus  
+##show allow the alerts rules in prometheus
+
+
+vim prometheus.yml  ## show define in prometheus file   alertmanager  
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+           - localhost:9093
+
+
+
+###  3 job mention the prometheus.yml file 
+##1  node_exporter matcrix
+##2. blackbox  matxix
+
+  - job_name: "node_exporter"         # Job name for node exporter
+
+    # metrics_path defaults to '/metrics'
+    # scheme defaults to 'http'.
+
+    static_configs:
+      - targets: ["192.168.1.50:9100"]  # Target node exporter endpoint
+
+
+
+#### restert the prometheus  the show the  node_exporter on the prometheus deskboard
+
+####blackbox  matxix  add on prometheus  on prometheus.yml
+
+  - job_name: 'blackbox'              # Job name for blackbox exporter
+    metrics_path: /probe              # Path for blackbox probe
+    params:
+      module: [http_2xx]              # Module to look for HTTP 200 response
+    static_configs:
+      - targets:
+        - http://prometheus.io        # HTTP target
+        - https://prometheus.io       # HTTPS target
+        - http://192.168.1.50:8080/  # HTTP target with port 8080   website matrix  
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: 192.168.1.40:9115  # Blackbox exporter address
+
+
+
+
+####start the blackbox Exporter  
+
+##check the blackbox  working or not
+http://192.168.1.40:9115
+
+
+
+
+##### setup reseiving  mails
+
+
+cp alertmanager-0.27.0.linux-amd64/alertmanager.yml     alertmanager-0.27.0.linux-amd64/alertmanager.yml.backup 
+
+vim alertmanager-0.27.0.linux-amd64/alertmanager.yml    ## clean all then past 
+
+route:
+  group_by: ['alertname']             # Group by alert name
+  group_wait: 30s                     # Wait time before sending the first notification
+  group_interval: 5m                  # Interval between notifications
+  repeat_interval: 1h                 # Interval to resend notifications
+  receiver: 'email-notifications'     # Default receiver
+
+receivers:
+- name: 'email-notifications'         # Receiver name
+  email_configs:
+  - to: gmail@gmail.com       # Email recipient
+    from: node1.example.com              # Email sender
+    smarthost: smtp.gmail.com:587     # SMTP server
+    auth_username: gmail@gmail.com         # SMTP auth username
+    auth_identity: gmail@gmail.com         # SMTP auth identity
+    auth_password: "app-key"  # SMTP auth password  https://myaccount.google.com/apppasswords
+    send_resolved: true               # Send notifications for resolved alerts
+
+
+
+
+
+pgrep  alertmanager
+
+./alertmanager & 
+
+
+### and again restert prometheus  laste tym
+
+
+
+##Blackbox Exporter
+##Download Blackbox Exporter
+wget https://github.com/prometheus/blackbox_exporter/releases/download/v0.25.0/blackbox_exporter-0.25.0.linux-amd64.tar.gz
+
+##Extract Blackbox Exporter
+tar xvfz blackbox_exporter-0.25.0.linux-amd64.tar.gz
+
+##Start Blackbox Exporter
+cd blackbox_exporter-0.25.0.linux-amd64
+./blackbox_exporter &
+
+
+
+
+
+
+
+
+#### we can serach multiple sever chack now we are serarch node_exporter  
+kill node_exporter
+
+###monitering the service
+
+
+
+
