@@ -1,0 +1,99 @@
+###Install DNS Server Software (BIND)
+  
+
+sudo apt update
+sudo apt install bind9 bind9utils bind9-doc
+
+
+##Configure BIND
+
+sudo vim /etc/bind/named.conf.local
+
+##Add the following for the example.com domain:
+
+zone "example.com" {
+    type master;
+    file "/etc/bind/db.example.com";
+};
+
+
+
+##Create Zone File for example.com
+sudo vim /etc/bind/db.example.com
+
+
+;
+; BIND data file for example.com
+;
+$TTL    604800
+@       IN      SOA     ns1.example.com. root.example.com. (
+                          2023010101 ; Serial
+                          28800      ; Refresh
+                          14400      ; Retry
+                          3600000    ; Expire
+                          604800 )   ; Minimum TTL
+;
+@       IN      NS      ns1.example.com.
+ns1     IN      A       192.168.0.10
+
+; Define clients (nodes)
+node1   IN      A       192.168.0.1
+node2   IN      A       192.168.0.2
+node3   IN      A       192.168.0.3
+node4   IN      A       192.168.0.4
+node5   IN      A       192.168.0.5
+node6   IN      A       192.168.0.6
+node7   IN      A       192.168.0.7
+node8   IN      A       192.168.0.8
+node9   IN      A       192.168.0.9
+
+
+
+##Configure BIND to Listen on All IP Addresses
+
+
+sudo vim /etc/bind/named.conf.options
+
+
+options {
+    directory "/var/cache/bind";
+
+    // Uncomment the following to allow DNS queries
+    listen-on { 192.168.0.10; };
+    allow-query { any; };
+
+    forwarders {
+        8.8.8.8;
+        8.8.4.4;
+    };
+};
+
+
+
+
+sudo systemctl restart bind9
+
+
+dig node1.example.com @192.168.0.10
+
+
+###№####################################
+
+#####Client Configuration for DNS (on Node Servers)
+
+
+####Edit the /etc/resolv.conf file
+
+sudo vim /etc/resolv.conf
+
+nameserver 192.168.0.10
+
+
+
+###Verify DNS Resolution
+
+nslookup node1.example.com
+
+
+
+###If you face any issues with DNS propagation or queries, check the BIND logs in /var/log/syslog or /var/log/messages for errors.
